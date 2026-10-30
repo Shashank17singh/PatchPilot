@@ -2,7 +2,7 @@
 
 # PatchPilot
 
-**A command-line AI agent that takes a C++ bug described in plain English, fixes it with reviewable edits, and proves the result with your own build and tests.**
+**A command-line AI agent that fixes C++ bugs from a plain-English description and checks each fix with your own build and tests.**
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![C++](https://img.shields.io/badge/C%2B%2B-Target%20Language-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](https://isocpp.org/)
@@ -17,11 +17,9 @@
 
 ## Overview
 
-PatchPilot repairs small bugs in C and C++ projects. You describe the problem in ordinary language, and an LLM works through a small set of tools to find the code, read it and change it. Every edit appears as a diff and waits for your approval. Afterwards PatchPilot builds the project with g++, Make or CMake and runs your tests, so the agent can check its own fix and feed any failure into the next attempt. If no attempt succeeds, every file goes back exactly as it was.
+PatchPilot repairs small bugs in C and C++ projects. You describe the problem in ordinary language, and an LLM searches the code, reads it and proposes edits through a small set of tools. Each edit appears as a diff and waits for your approval. PatchPilot then builds the project with g++, Make or CMake and runs your tests, and any failure goes back to the model for the next attempt. If no attempt succeeds, every file is restored exactly as it was.
 
-It works with Groq, OpenRouter, Gemini and local models through Ollama. A benchmark of ten seeded bugs measures how well each model does, and a confirmed fix can be exported as a patch or committed to git.
-
-> **The model proposes, your tests and your approval decide.**
+It works with Groq, OpenRouter, Gemini and local models through Ollama. Ten seeded bugs make up a benchmark for comparing models, and a confirmed fix can be exported as a patch or committed to git.
 
 ---
 
@@ -77,13 +75,13 @@ graph TD
 | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Edit Approval**          | Each proposed edit is shown as a full unified diff and needs a `y` before it is written. Any other answer, including closed input, refuses it. `--yes` skips the question.       |
 | **Multi-Line Editing**     | `replace_range`, `insert_lines` and `delete_lines` join `replace_line`, so the model can add a missing brace or rewrite a block. CRLF endings and final newlines are preserved.  |
-| **Pluggable Verification** | Detects CMake and Make projects, or uses plain g++. `--test-cmd`, CTest and `make test` let the agent judge its own fix instead of asking you.                                   |
-| **Baseline Check**         | Tests run once before any edit. If they already pass they cannot prove a fix, so PatchPilot says so and asks you. If they fail, the output goes to the model as a starting point. |
+| **Pluggable Verification** | Detects CMake and Make projects and falls back to plain g++. With `--test-cmd`, CTest or `make test`, the test result decides whether a fix worked and you are not asked.                                   |
+| **Baseline Check**         | Tests run once before any edit. Tests that already pass cannot prove a fix, so PatchPilot warns you and asks. Failing tests give the model its starting point. |
 | **Automatic Rollback**     | Failed, interrupted or crashed runs restore every file byte for byte.                                                                                                            |
 | **Four LLM Providers**     | Groq, OpenRouter, Gemini and Ollama behind one `LLMClient` protocol, including the Gemini thought signatures that its tool calling requires.                                     |
-| **Benchmark Suite**        | Ten seeded bugs, each judged by a hidden test the model cannot see or edit. Reports success rate, tokens, calls and time per model.                                              |
+| **Benchmark Suite**        | Ten seeded bugs, each judged by a hidden test the model cannot see or edit. Reports success rate, tokens, calls and time for each model.                                              |
 | **Git Integration**        | `--patch-file` writes a patch that `git apply` accepts. `--commit` commits only the fixed files and refuses if they held uncommitted work of yours.                              |
-| **Web Demo**               | A Streamlit page where visitors bring their own API key. Code runs only inside a Bubblewrap sandbox, and without a working sandbox nothing runs at all.                          |
+| **Web Demo**               | A Streamlit page where visitors use their own API key. Code runs only inside a Bubblewrap sandbox. Without a working sandbox, the demo proposes a diff and runs nothing.                          |
 
 ---
 
@@ -99,7 +97,7 @@ graph TD
 | **Web Interface**    | `Streamlit`                                                    |
 | **Sandboxing**       | `bubblewrap`, `prlimit`                                        |
 | **Testing**          | `Pytest`, Streamlit `AppTest`, `httpx` mock transport          |
-| **Quality & CI**     | `Ruff`, `Mypy` (strict), GitHub Actions                        |
+| **Quality & CI**     | `Ruff`, `Mypy` (strict), `pre-commit`, GitHub Actions          |
 | **Packaging**        | `uv`, `hatchling`, `Docker`                                    |
 
 ---
@@ -137,8 +135,12 @@ PatchPilot/
 ├── tests/                      # Unit and end-to-end tests (no network needed)
 ├── .github/workflows/ci.yml    # Lint, types and tests on push
 ├── .env.example                # Environment variable template
+├── .pre-commit-config.yaml     # Git hooks for formatting and linting
+├── CHANGELOG.md                # Release history
+├── CONTRIBUTING.md             # Development setup and guidelines
 ├── Dockerfile                  # Container with the C++ toolchain
 ├── LICENSE                     # MIT
+├── Makefile                    # Developer commands (install, test, lint)
 ├── pyproject.toml              # Project metadata and tooling
 └── uv.lock                     # Locked dependencies
 ```
@@ -227,7 +229,7 @@ patchpilot my_project --patch-file fix.patch    # then: git apply fix.patch
 patchpilot my_project --commit                  # commits locally, never pushes
 ```
 
-`--commit` commits only the files the fix changed. If one of them already held uncommitted work, PatchPilot leaves the fix in your working tree and does not commit, so your changes never end up in its commit.
+`--commit` commits only the files the fix changed. If one of them already held uncommitted work, PatchPilot leaves the fix in your working tree and skips the commit.
 
 ### 7. Run the Benchmark
 
@@ -249,13 +251,13 @@ uv run streamlit run webapp/app.py
 ### 9. Run Tests and Quality Checks
 
 ```bash
-uv sync --all-extras
-uv run pytest                    # uses a scripted model, so no API key or network is needed
-uv run ruff check . && uv run ruff format --check .
-uv run mypy
+make install      # Installs the app and all development dependencies
+make lint         # Runs Ruff and checks formatting
+make typecheck    # Runs Mypy in strict mode
+make test         # Runs the Pytest suite
 ```
 
-Tests that need `g++`, `make`, `cmake` or a working Bubblewrap are skipped when those are missing.
+Tests use a scripted model, so they need no API key or network. Tests that need `g++`, `make`, `cmake` or a working Bubblewrap are skipped when those are missing. See [CONTRIBUTING.md](CONTRIBUTING.md) to get involved.
 
 ### Exit Codes
 
@@ -307,11 +309,11 @@ docker run --rm -it \
 
 ### Streamlit Community Cloud
 
-1. Open [share.streamlit.io](https://share.streamlit.io) and choose **Create app** → **From existing repo**.
+1. Open [share.streamlit.io](https://share.streamlit.io) and choose **Create app**, then **From existing repo**.
 2. Select your repository, branch `main` and main file path `webapp/app.py`.
 3. Click **Deploy**. Dependencies install from `webapp/requirements.txt` and `webapp/packages.txt`.
 
-No secrets are needed, because visitors enter their own API key. It is kept in the browser session and never stored. The sidebar shows whether the sandbox is active. If the platform does not allow Bubblewrap, the demo stays online in edit-only mode: it proposes a diff and compiles nothing.
+The app needs no secrets, because visitors enter their own API key. The key lasts for the session and is never written to disk. The sidebar shows whether the sandbox is active. If the platform does not allow Bubblewrap, the demo still proposes diffs but compiles nothing.
 
 ---
 
@@ -329,24 +331,24 @@ Each of the ten cases gets up to 3 attempts of 10 steps, and only its hidden tes
 
 ## Security Notes
 
-**What PatchPilot protects.**
+### What PatchPilot Protects
 
 - The model can only read and edit `.c`, `.cc`, `.cpp`, `.h` and `.hpp` files inside the project. Paths that escape it (`../`, absolute paths, symlinks pointing outside) and directories such as `.git`, `.venv` and `build` are refused.
 - Nothing is written without your approval unless you pass `--yes`. Closed input counts as a refusal.
 - Every code file is snapshotted before the first edit and restored if all attempts fail, if you press Ctrl+C, or if the API fails mid-run.
 - `--commit` never pushes, and never sweeps your uncommitted work into its commit.
 
-**What it does not protect on your machine.**
+### Risks on Your Machine
 
-- The command line **compiles and runs model-written code with your user's permissions**, and so do your Make, CMake and test commands. Run time is limited, but this is not sandboxed. Read the diffs, avoid `--yes` on code you do not trust, and use Docker for untrusted projects.
-- Your source code goes to your LLM provider as part of the conversation, unless you use Ollama. Do not point PatchPilot at code you are not allowed to share.
+- The command line compiles and runs model-written code with your user's permissions, and so do your Make, CMake and test commands. Run time is limited, but there is no sandbox. Read the diffs, avoid `--yes` on code you do not trust, and use Docker for untrusted projects.
+- Unless you use Ollama, your source code goes to your LLM provider as part of the conversation. Do not point PatchPilot at code you are not allowed to share.
 
-**The hosted web demo.**
+### The Hosted Web Demo
 
-- Compiling and running both happen inside Bubblewrap, because compiling is not safe either: `#include "/proc/self/environ"` could put server secrets into compiler errors.
+- Compiling and running both happen inside Bubblewrap. Compiling needs it too, because `#include "/proc/self/environ"` could put server secrets into compiler errors.
 - The sandbox has no network, no capabilities, an empty environment and its own PID namespace. CPU time, memory, file size and process count are capped, and output is size-limited.
-- `sandbox_available()` starts a real sandboxed compiler rather than looking for the binary. If that fails, the demo compiles and runs nothing. There is no fallback to unsandboxed execution.
-- Run limits are per browser session, so they slow down casual misuse and nothing more. Bubblewrap also shares the host kernel, which makes it weaker than a virtual machine.
+- `sandbox_available()` starts a real sandboxed compiler to confirm that Bubblewrap works on the server. If that fails, the demo compiles and runs nothing, and there is no unsandboxed fallback.
+- Run limits apply per browser session, so a visitor can reset them by opening a new one. Bubblewrap shares the host kernel, so it isolates less than a virtual machine does.
 
 ---
 
@@ -356,6 +358,7 @@ Each of the ten cases gets up to 3 attempts of 10 steps, and only its hidden tes
 - `g++` mode compiles every `.cpp` and `.cc` file together, with no flags or libraries. Use Make, CMake or `--test-cmd` for anything more involved.
 - Without automated tests, whether a bug is fixed is judged by you reading the program output.
 - The agent does not see `Makefile` or `CMakeLists.txt` contents and cannot edit them, so build configuration bugs are out of reach.
+- Some small local models print tool calls as plain text. PatchPilot reads that as the model finishing, so choose a model with reliable tool calling.
 - Small, well-described bugs work best, and quality depends heavily on the model.
 
 ---
@@ -394,6 +397,10 @@ Each of the ten cases gets up to 3 attempts of 10 steps, and only its hidden tes
 | `tests/test_web.py`            | Upload validation, the no-sandbox guarantee and web run behaviour.                                                  |
 | `.github/workflows/ci.yml`     | Runs Ruff, Mypy and Pytest on Python 3.10 to 3.13, and fails if the sandbox tests cannot run.                       |
 | `Dockerfile` / `.dockerignore` | Slim Python image with the C++ toolchain, running as a non-root user.                                               |
+| `Makefile`                     | Developer commands for installing, testing, linting and running the demo.                                           |
+| `.pre-commit-config.yaml`      | Pre-commit hooks for formatting and linting.                                                                        |
+| `CONTRIBUTING.md`              | Development setup, plus how to add a benchmark case or an LLM provider.                                             |
+| `CHANGELOG.md`                 | Release history.                                                                                                    |
 | `pyproject.toml` / `uv.lock`   | Project metadata, console scripts, extras, tool configuration and locked dependencies.                              |
 
 ---

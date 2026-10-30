@@ -18,7 +18,7 @@ from .config import Settings, get_provider
 from .errors import ConfigError
 from .llm import LLMClient, create_client
 from .sandbox import SandboxedVerifier, sandbox_available
-from .ui import DEFAULT_PREVIEW_LINES
+from .ui import CONFIRM_FIX_PROMPT, DEFAULT_PREVIEW_LINES
 from .verifier import VerificationResult, Verifier
 from .workspace import CODE_EXTENSIONS, Workspace
 
@@ -72,7 +72,7 @@ class WebUI:
 
     def ask(self, question: str) -> str:
         # "Is the bug fixed?" only ends the run: the visitor judges the diff afterwards.
-        return "y" if "fixed" in question else ""
+        return "y" if question == CONFIRM_FIX_PROMPT else ""
 
 
 class NotExecutedVerifier:

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 from pathlib import Path
 
@@ -176,8 +175,8 @@ class TestInsideTheSandbox:
         assert len(output) < 4000
 
 
-def test_nothing_is_left_behind_on_an_empty_project(tmp_path: Path) -> None:
+def test_a_project_without_sources_is_reported(tmp_path: Path) -> None:
     result = SandboxedVerifier(tmp_path).verify([])
 
     assert not result.compiled
-    assert shutil.which("bwrap") is None or "No C++ source files" in result.output
+    assert "No C++ source files" in result.output

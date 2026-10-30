@@ -173,7 +173,6 @@ class TestAutomatedVerification:
         broken = VerificationResult(False, "syntax error")
         llm = ScriptedLLM([edit(project), final_reply()])
         ui = ScriptedUI()
-
         verifier = FakeVerifier([broken, PASSING], automated=True)
 
         assert agent_for(workspace, llm, ui, verifier).solve("bug")

@@ -21,7 +21,7 @@ from .config import Settings
 from .errors import LLMError, RejectedRequestError
 from .llm import LLMClient, LLMReply, Message, ToolCall
 from .tools import TOOL_SCHEMAS, ToolKit
-from .ui import UserInterface
+from .ui import CONFIRM_FIX_PROMPT, UserInterface
 from .verifier import VerificationResult, Verifier
 from .workspace import Snapshot, Workspace
 
@@ -158,7 +158,7 @@ class CodingAgent:
         if verdict is not None:
             return verdict
 
-        if self._ui.ask("\nIs the bug fixed? (y/n): ").lower().startswith("y"):
+        if self._ui.ask(CONFIRM_FIX_PROMPT).lower().startswith("y"):
             return True
 
         comment = self._ui.ask("What is still wrong? (Enter to skip): ")

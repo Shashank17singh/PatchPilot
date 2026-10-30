@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Protocol
 
 DEFAULT_PREVIEW_LINES = 15
+CONFIRM_FIX_PROMPT = "\nIs the bug fixed? (y/n): "
 _BLOCK_INDENT = " " * 11
 
 

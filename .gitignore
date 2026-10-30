@@ -23,6 +23,9 @@ venv/
 # PatchPilot's CMake build tree
 .patchpilot-build/
 
+# Local AI assistant configuration
+.agent/
+
 # Editors and OS
 .idea/
 .vscode/

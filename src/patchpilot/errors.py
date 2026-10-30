@@ -36,5 +36,5 @@ class LLMError(PatchPilotError):
 class RejectedRequestError(LLMError):
     """The API rejected a request, typically because the model emitted a malformed tool call.
 
-    Unlike other :class:`LLMError` subclasses this is recoverable: the agent simply asks again.
+    Unlike other :class:`LLMError` subclasses this is recoverable: the agent asks again.
     """

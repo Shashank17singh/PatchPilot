@@ -10,6 +10,7 @@ from conftest import ScriptedLLM, final_reply, tool_reply
 from patchpilot.benchmark import (
     BenchmarkCase,
     CaseResult,
+    ClientFactory,
     HiddenTestVerifier,
     ModelSpec,
     format_report,
@@ -21,7 +22,7 @@ from patchpilot.benchmark import (
 )
 from patchpilot.config import Settings
 from patchpilot.errors import ConfigError, LLMError
-from patchpilot.llm import LLMClient
+from patchpilot.llm import LLMClient, LLMReply
 
 CASES_DIRECTORY = Path(__file__).resolve().parent.parent / "benchmarks" / "cases"
 ENV = {"GROQ_API_KEY": "key"}
@@ -40,9 +41,9 @@ def apply_reference_fix(case: BenchmarkCase, project: Path) -> None:
         path.write_bytes(text.replace(fix.find, fix.replace, 1).encode("utf-8"))
 
 
-def scripted(*replies: object) -> object:
+def scripted(*replies: LLMReply) -> ClientFactory:
     def factory(_: Settings) -> LLMClient:
-        return ScriptedLLM(list(replies))  # type: ignore[arg-type]
+        return ScriptedLLM(replies)
 
     return factory
 
@@ -87,7 +88,7 @@ def test_a_correct_fix_is_scored_as_solved() -> None:
         final_reply("Made the bound inclusive."),
     )
 
-    result = run_case(case, SPEC, factory, env=ENV)  # type: ignore[arg-type]
+    result = run_case(case, SPEC, factory, env=ENV)
 
     assert result.solved
     assert result.attempts == 1
@@ -101,7 +102,7 @@ def test_a_model_that_changes_nothing_is_scored_as_unsolved() -> None:
     case = next(c for c in ALL_CASES if c.id == "off_by_one")
     factory = scripted(final_reply(), final_reply(), final_reply())
 
-    result = run_case(case, SPEC, factory, env=ENV)  # type: ignore[arg-type]
+    result = run_case(case, SPEC, factory, env=ENV)
 
     assert not result.solved
     assert result.attempts == 3

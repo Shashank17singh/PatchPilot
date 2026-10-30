@@ -7,15 +7,16 @@ import pytest
 
 from conftest import FakeVerifier, ScriptedLLM, final_reply, tool_reply
 from patchpilot import web
-from patchpilot.config import PROVIDERS
+from patchpilot.config import PROVIDERS, Settings
 from patchpilot.errors import ConfigError
+from patchpilot.ui import CONFIRM_FIX_PROMPT
 from patchpilot.verifier import CppVerifier, VerificationResult
 
 BUGGY = "#include <iostream>\nint main() { std::cout << 1 + 2; }\n"
 requires_gpp = pytest.mark.skipif(shutil.which("g++") is None, reason="g++ is not installed")
 
 
-def settings() -> object:
+def settings() -> Settings:
     return web.web_settings("groq", "", "key")
 
 
@@ -78,7 +79,7 @@ class TestRunFix:
         outcome = web.run_fix(
             {"main.cpp": BUGGY},
             "wrong sum",
-            settings(),  # type: ignore[arg-type]
+            settings(),
             client=llm,
             verifier_factory=lambda _: web.NotExecutedVerifier(),
         )
@@ -101,7 +102,7 @@ class TestRunFix:
         outcome = web.run_fix(
             {"main.cpp": BUGGY},
             "bug",
-            settings(),  # type: ignore[arg-type]
+            settings(),
             expected_output="3",
             client=llm,
             verifier_factory=lambda _: web.NotExecutedVerifier(),
@@ -127,7 +128,7 @@ class TestRunFix:
         outcome = web.run_fix(
             {"main.cpp": BUGGY},
             "it should print 4",
-            settings(),  # type: ignore[arg-type]
+            settings(),
             expected_output="4",
             client=llm,
             verifier_factory=lambda _: CppVerifier(),
@@ -145,7 +146,7 @@ class TestRunFix:
         outcome = web.run_fix(
             {"main.cpp": BUGGY},
             "bug",
-            settings(),  # type: ignore[arg-type]
+            settings(),
             client=llm,
             verifier_factory=lambda _: FakeVerifier([wrong], automated=True),
         )
@@ -159,7 +160,7 @@ class TestRunFix:
         web.run_fix(
             {"main.cpp": BUGGY},
             "bug",
-            settings(),  # type: ignore[arg-type]
+            settings(),
             client=ScriptedLLM([final_reply()]),
             verifier_factory=lambda _: web.NotExecutedVerifier(),
             on_line=seen.append,
@@ -171,5 +172,5 @@ class TestRunFix:
 def test_web_ui_answers_only_the_final_question() -> None:
     ui = web.WebUI()
 
-    assert ui.ask("\nIs the bug fixed? (y/n): ") == "y"
+    assert ui.ask(CONFIRM_FIX_PROMPT) == "y"
     assert ui.ask("What is still wrong? (Enter to skip): ") == ""

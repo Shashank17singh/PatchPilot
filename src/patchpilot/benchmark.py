@@ -18,7 +18,7 @@ import shutil
 import sys
 import tempfile
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -259,8 +259,8 @@ def format_report(results: Sequence[CaseResult]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _mean(values: object) -> float:
-    numbers = list(values)  # type: ignore[call-overload]
+def _mean(values: Iterable[float]) -> float:
+    numbers = list(values)
     return sum(numbers) / len(numbers) if numbers else 0.0
 
 

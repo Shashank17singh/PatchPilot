@@ -263,10 +263,10 @@ class ToolKit:
         return success
 
 
-def _as_int(value: object) -> int | None:
+def _as_int(value: Any) -> int | None:
     """Convert a model-supplied line number. Models sometimes send "17" instead of 17."""
     try:
-        return int(value)  # type: ignore[call-overload,no-any-return]
+        return int(value)
     except (TypeError, ValueError):
         return None
 

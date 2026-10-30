@@ -5,6 +5,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -34,8 +35,8 @@ PYTHON = f'"{sys.executable}"'
 PROGRAM = """int main() { return 0; }\n"""
 
 
-def settings(**overrides: object) -> Settings:
-    return Settings(api_key="k", **overrides)  # type: ignore[arg-type]
+def settings(**overrides: Any) -> Settings:
+    return Settings(api_key="k", **overrides)
 
 
 class TestDetection:
@@ -206,7 +207,6 @@ class TestCMake:
         "project(demo CXX)\n"
         "add_executable(program main.cpp)\n"
     )
-    GENERATOR_NOTE = "A compiler CMake can drive is required, so skip if configuring fails."
 
     def write_project(self, root: Path, body: str, *, with_tests: bool) -> None:
         tests = "enable_testing()\nadd_test(NAME runs COMMAND program)\n" if with_tests else ""
@@ -222,7 +222,7 @@ class TestCMake:
         )
         shutil.rmtree(root / "probe", ignore_errors=True)
         if probe.returncode != 0:
-            pytest.skip(self.GENERATOR_NOTE)
+            pytest.skip("CMake found no usable compiler")
 
     def test_a_project_without_tests_gets_no_verdict(self, tmp_path: Path) -> None:
         self.write_project(tmp_path, PROGRAM, with_tests=False)
