@@ -65,7 +65,7 @@ def show_outcome(outcome: web.FixOutcome) -> None:
         st.code(outcome.log, language="text")
 
 
-st.set_page_config(page_title="PatchPilot", page_icon="🛠️")
+st.set_page_config(page_title="PatchPilot")
 st.title("PatchPilot")
 st.write("Describe a C++ bug in plain English. An LLM agent finds it and proposes a fix.")
 
