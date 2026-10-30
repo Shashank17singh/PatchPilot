@@ -1,0 +1,12 @@
+{
+  "title": "Accumulator not reset between iterations",
+  "kind": "state",
+  "report": "largestRowSum({{1, 2}, {3, 4}, {1, 1}}) returns 12 but the biggest row sum is 7.",
+  "fix": [
+    {
+      "file": "main.cpp",
+      "find": "    int rowSum = 0;\n    for (const std::vector<int> &row : rows) {\n",
+      "replace": "    for (const std::vector<int> &row : rows) {\n        int rowSum = 0;\n"
+    }
+  ]
+}

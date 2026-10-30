@@ -1,0 +1,12 @@
+{
+  "title": "Integer division loses the fraction",
+  "kind": "types",
+  "report": "average({1, 2}) returns 1 but it should return 1.5.",
+  "fix": [
+    {
+      "file": "main.cpp",
+      "find": "return sum / static_cast<int>(values.size());",
+      "replace": "return static_cast<double>(sum) / values.size();"
+    }
+  ]
+}

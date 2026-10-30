@@ -1,0 +1,12 @@
+{
+  "title": "Missing closing brace breaks the build",
+  "kind": "syntax",
+  "report": "The project no longer compiles. The compiler complains around the isSorted function.",
+  "fix": [
+    {
+      "file": "main.cpp",
+      "find": "        }\n    return true;\n",
+      "replace": "        }\n    }\n    return true;\n"
+    }
+  ]
+}

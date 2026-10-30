@@ -1,0 +1,17 @@
+{
+  "title": "Integer type too small for the result",
+  "kind": "types",
+  "report": "factorial(15) prints a wrong number. The correct answer is 1307674368000.",
+  "fix": [
+    {
+      "file": "main.cpp",
+      "find": "int factorial(int n)",
+      "replace": "long long factorial(int n)"
+    },
+    {
+      "file": "main.cpp",
+      "find": "int result = 1;",
+      "replace": "long long result = 1;"
+    }
+  ]
+}

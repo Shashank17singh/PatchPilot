@@ -1,0 +1,12 @@
+{
+  "title": "The bug is in a header, not the file that shows it",
+  "kind": "multi-file",
+  "report": "Scores above the limit come out as 0. clampScore(120, 0, 100) should give 100.",
+  "fix": [
+    {
+      "file": "scoring.h",
+      "find": "    if (value > high) {\n        return low;\n",
+      "replace": "    if (value > high) {\n        return high;\n"
+    }
+  ]
+}

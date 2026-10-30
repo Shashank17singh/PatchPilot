@@ -1,0 +1,12 @@
+{
+  "title": "Wrong sign in a conversion formula",
+  "kind": "logic",
+  "report": "Converting 100 Celsius prints 148 Fahrenheit. Water boils at 212, so the conversion is wrong.",
+  "fix": [
+    {
+      "file": "main.cpp",
+      "find": "- 32.0",
+      "replace": "+ 32.0"
+    }
+  ]
+}

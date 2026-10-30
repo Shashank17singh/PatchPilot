@@ -1,0 +1,12 @@
+{
+  "title": "A stray break ends a loop early",
+  "kind": "extra code",
+  "report": "countEven({2, 4, 6}) returns 1 instead of 3. It seems to stop after the first even number.",
+  "fix": [
+    {
+      "file": "main.cpp",
+      "find": "            count++;\n            break;\n",
+      "replace": "            count++;\n"
+    }
+  ]
+}

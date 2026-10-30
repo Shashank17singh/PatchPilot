@@ -1,0 +1,12 @@
+{
+  "title": "Loop stops one element early",
+  "kind": "logic",
+  "report": "sumRange(1, 5) returns 10 but it should return 15. The last number is missing.",
+  "fix": [
+    {
+      "file": "main.cpp",
+      "find": "i < high",
+      "replace": "i <= high"
+    }
+  ]
+}

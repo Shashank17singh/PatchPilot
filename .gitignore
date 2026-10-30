@@ -1,0 +1,30 @@
+# Secrets: never commit real credentials. Only .env.example is tracked.
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+wheels/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+
+# PatchPilot's CMake build tree
+.patchpilot-build/
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,79 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "patchpilot"
+dynamic = ["version"]
+description = "An LLM-powered agent that locates and fixes small bugs in C++ projects from a plain-English description."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Shashank" }]
+keywords = ["llm", "agent", "debugging", "cpp", "groq", "gemini", "ollama", "openrouter", "developer-tools"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Debuggers",
+    "Typing :: Typed",
+]
+dependencies = [
+    "groq>=1.7.0",
+    "openai>=1.60",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.10",
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+web = [
+    "streamlit>=1.40",
+]
+
+[project.urls]
+Homepage = "https://github.com/Shashank17singh/PatchPilot"
+Issues = "https://github.com/Shashank17singh/PatchPilot/issues"
+
+[project.scripts]
+patchpilot = "patchpilot.cli:main"
+patchpilot-bench = "patchpilot.benchmark:main"
+
+[tool.hatch.version]
+path = "src/patchpilot/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/patchpilot"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "SIM", "C4", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+# Prompt text is sent to the model verbatim; wrapping it would change the prompt.
+"src/patchpilot/prompts.py" = ["E501"]
+# The app must add src/ to sys.path before importing the package.
+"webapp/app.py" = ["E402"]
+
+[tool.mypy]
+files = ["src/patchpilot"]
+python_version = "3.10"
+strict = true
+warn_unreachable = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

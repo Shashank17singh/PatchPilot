@@ -1,0 +1,12 @@
+{
+  "title": "In-place reverse swaps everything twice",
+  "kind": "logic",
+  "report": "reverseInPlace leaves the text unchanged. Reversing 'hello' still gives 'hello'.",
+  "fix": [
+    {
+      "file": "main.cpp",
+      "find": "i < length; i++",
+      "replace": "i < length / 2; i++"
+    }
+  ]
+}

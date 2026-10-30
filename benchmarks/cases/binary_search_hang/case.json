@@ -1,0 +1,12 @@
+{
+  "title": "Binary search never terminates",
+  "kind": "hang",
+  "report": "firstAtLeast hangs forever for some inputs and the program never finishes.",
+  "fix": [
+    {
+      "file": "main.cpp",
+      "find": "low = middle;",
+      "replace": "low = middle + 1;"
+    }
+  ]
+}
