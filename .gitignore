@@ -31,3 +31,6 @@ venv/
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Benchmark reports
+benchmarks/results/
