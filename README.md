@@ -1,19 +1,6 @@
-<div align="center">
-
 # PatchPilot
 
-**A command-line AI agent that fixes C++ bugs from a plain-English description and checks each fix with your own build and tests.**
-
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![C++](https://img.shields.io/badge/C%2B%2B-Target%20Language-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)](https://isocpp.org/)
-[![Groq](https://img.shields.io/badge/Groq-openai--gpt--oss--120b-F55036?style=for-the-badge&logoColor=white)](https://groq.com/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Web%20Demo-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
-[![Pytest](https://img.shields.io/badge/Pytest-Tested-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://docs.pytest.org/)
-[![CI](https://img.shields.io/github/actions/workflow/status/Shashank17singh/PatchPilot/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/Shashank17singh/PatchPilot/actions/workflows/ci.yml)
-
-</div>
-
----
+A command-line AI agent that fixes C++ bugs from a plain-English description and checks each fix with your own build and tests.
 
 ## Overview
 

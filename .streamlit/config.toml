@@ -1,0 +1,8 @@
+[theme]
+# Terminal graphite with cyan, set in mono.
+base = "dark"
+primaryColor = "#1597b0"
+backgroundColor = "#15171a"
+secondaryBackgroundColor = "#202328"
+textColor = "#e8e8e6"
+font = "monospace"
