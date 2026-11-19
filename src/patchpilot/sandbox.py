@@ -62,7 +62,7 @@ def bwrap_command(argv: Sequence[str], binds: Sequence[tuple[str, str, str]]) ->
         "/usr/bin:/bin",
         "--setenv",
         "TMPDIR",
-        "/tmp",
+        "/tmp",  # nosec B108
         "--ro-bind",
         "/usr",
         "/usr",
@@ -86,13 +86,13 @@ def bwrap_command(argv: Sequence[str], binds: Sequence[tuple[str, str, str]]) ->
         "--dev",
         "/dev",
         "--tmpfs",
-        "/tmp",
+        "/tmp",  # nosec B108
     ]
     for flag, host_path, sandbox_path in binds:
         command += [flag, host_path, sandbox_path]
     command += [
         "--chdir",
-        "/tmp",
+        "/tmp",  # nosec B108
         "--",
         PRLIMIT,
         f"--cpu={CPU_SECONDS}",

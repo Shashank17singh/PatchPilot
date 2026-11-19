@@ -93,7 +93,7 @@ def run_command(
     process = subprocess.Popen(
         command,
         cwd=cwd,
-        shell=isinstance(command, str),
+        shell=isinstance(command, str),  # nosec B602
         stdin=subprocess.DEVNULL,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
