@@ -134,7 +134,7 @@ PatchPilot/
 
 ---
 
-## Setup & Execution
+## Setup and Installation
 
 ### 1. Environment Initialization
 
@@ -235,7 +235,11 @@ uv sync --extra web
 uv run streamlit run webapp/app.py
 ```
 
-### 9. Run Tests and Quality Checks
+---
+
+## Running the Tests
+
+Execute automated tests and code quality checks:
 
 ```bash
 make install      # Installs the app and all development dependencies
@@ -339,7 +343,7 @@ Each of the ten cases gets up to 3 attempts of 10 steps, and only its hidden tes
 
 ---
 
-## Limitations
+## Known Limitations
 
 - It supports C and C++ only, and the agent cannot create new files.
 - `g++` mode compiles every `.cpp` and `.cc` file together, with no flags or libraries. Use Make, CMake or `--test-cmd` for anything more involved.
