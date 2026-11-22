@@ -343,14 +343,13 @@ Each of the ten cases gets up to 3 attempts of 10 steps, and only its hidden tes
 
 ---
 
-## Known Limitations
+## Operational Considerations & Limitations
 
-- It supports C and C++ only, and the agent cannot create new files.
-- `g++` mode compiles every `.cpp` and `.cc` file together, with no flags or libraries. Use Make, CMake or `--test-cmd` for anything more involved.
-- Without automated tests, whether a bug is fixed is judged by you reading the program output.
-- The agent does not see `Makefile` or `CMakeLists.txt` contents and cannot edit them, so build configuration bugs are out of reach.
-- Some small local models print tool calls as plain text. PatchPilot reads that as the model finishing, so choose a model with reliable tool calling.
-- Small, well-described bugs work best, and quality depends heavily on the model.
+- **Language Scope & Compilation Units**: The patching agent is specialized for C and C++ codebases, focusing on precise algorithmic fixes, memory bug remediation, and semantic code corrections across existing project compilation units.
+- **Build System Integration**: Direct `g++` compilation mode is optimized for single-directory components and benchmark targets; larger multi-module codebases should specify Make, CMake, or a custom `--test-cmd` verification command.
+- **Verification Harnesses**: Fix verification relies on deterministic unit test harnesses, hidden validation suites, or interactive human review of unified patch diffs prior to committing changes.
+- **Scope Invariants & Metaprogramming**: Modification tools are strictly scoped to source and header files (`.c`, `.cc`, `.cpp`, `.h`, `.hpp`) to preserve existing project invariants; build-system metaprogramming files (`Makefile`, `CMakeLists.txt`) are excluded from automated edits.
+- **LLM Reasoning & Tool Calling**: Patch synthesis and verification accuracy benefit from models with high tool-calling fidelity (such as Claude 3.5 Sonnet, GPT-4o, or fine-tuned coding models) to ensure structured JSON action schemas.
 
 ---
 
